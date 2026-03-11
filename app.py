@@ -2,37 +2,32 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import pandas_ta as ta
+import os
 from datetime import datetime
 
 # --- 1. 頁面設定 ---
-st.set_page_config(page_title="2026 美股全市場強勢掃描", layout="wide")
+st.set_page_config(page_title="2026 美股全市場掃描", layout="wide")
 
 st.markdown("""
     <style>
-    .stMetric { background-color: #1e293b; padding: 15px; border-radius: 10px; border: 1px solid #334155; }
-    [data-testid="stMetricValue"] { color: #00FFCC !important; font-weight: 800; }
-    .price-card { padding: 15px; background: #0f172a; border-radius: 12px; border: 1px solid #475569; margin-bottom: 10px; line-height: 1.8; }
+    .stMetric { background-color: #1e293b; padding: 15px; border-radius: 10px; }
+    [data-testid="stMetricValue"] { color: #00FFCC !important; }
     .tv-link { 
-        display: inline-block; padding: 5px 12px; background-color: #2962FF; 
+        display: inline-block; padding: 8px 16px; background-color: #2962FF; 
         color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. 自動獲取 S&P 500 全清單 (使用更穩定的來源) ---
-@st.cache_data(ttl=86400)
-def get_sp500_full_list():
-    try:
-        # 使用資料源直接抓取，避免被維基百科 403 阻擋
-        url = 'https://datahub.io'
-        df = pd.read_csv(url)
-        tickers = df['Symbol'].str.replace('.', '-', regex=False).tolist()
-        names = df['Name'].tolist()
-        return dict(zip(tickers, names)), f"✅ 已成功載入 S&P 500 全成分股 (共 {len(tickers)} 檔)"
-    except:
-        # 如果網路失敗，保底 30 檔
-        backup = {"AAPL":"Apple","MSFT":"Microsoft","NVDA":"NVIDIA","GOOGL":"Alphabet","AMZN":"Amazon","META":"Meta","TSLA":"Tesla","AVGO":"Broadcom"}
-        return backup, "⚠️ 網路受限，目前使用核心權值股模式"
+# --- 2. 讀取本地 S&P 500 清單 ---
+@st.cache_data
+def get_local_sp500():
+    file_path = 'sp500.csv'
+    if os.path.exists(file_path):
+        df = pd.read_csv(file_path)
+        return dict(zip(df['Symbol'], df['Name'])), f"✅ 已從本地 CSV 載入 {len(df)} 檔標的"
+    else:
+        return {"AAPL":"Apple","NVDA":"NVIDIA","AVGO":"Broadcom"}, "⚠️ 找不到 CSV，使用預設標的"
 
 # --- 3. 分析引擎 ---
 def analyze_stock(df, threshold):
@@ -47,7 +42,7 @@ def analyze_stock(df, threshold):
         curr, prev = df.iloc[-1], df.iloc[-2]
         ret = (curr['Close'] / prev['Close'] - 1) * 100
         
-        # 核心邏輯：價格在月線上 + 月線趨勢向上 + K > D
+        # 條件：價格 > MA20 且 MA20 上揚 且 K > D
         if curr['Close'] > curr['MA20'] and curr['MA20_Slope'] > 0 and curr['K'] > curr['D'] and ret >= threshold:
             return {
                 "現價": round(float(curr['Close']), 2), "漲幅": round(ret, 2),
@@ -58,22 +53,20 @@ def analyze_stock(df, threshold):
     return None
 
 # --- 4. 主介面 ---
-st.title("⚡ 2026 美股全市場強勢波段掃描")
+st.title("🇺🇸 2026 美股全市場強勢波段掃描")
 with st.sidebar:
-    st.header("⚙️ 篩選參數")
-    ret_target = st.slider("突破漲幅門檻 (%)", -1.0, 5.0, 0.0, 0.1)
-    scan_limit = st.slider("掃描檔數 (由市值排名前開始)", 50, 500, 150)
-    if st.button("🔄 重置數據快取"): st.cache_data.clear(); st.rerun()
+    ret_target = st.slider("漲幅門檻 (%)", -1.0, 5.0, 0.0, 0.1)
+    scan_limit = st.slider("掃描檔數", 10, 500, 100)
+    if st.button("🔄 重置快取"): st.cache_data.clear(); st.rerun()
 
-if st.button("🚀 開始全市場掃描 (排序由強至弱)", use_container_width=True):
-    all_stocks, msg = get_sp500_full_list()
+if st.button("🚀 開始全市場掃描", use_container_width=True):
+    all_stocks, msg = get_local_sp500()
     st.info(msg)
     
     tickers = list(all_stocks.keys())[:scan_limit]
     results = []
     
     progress_bar = st.progress(0)
-    # 批次下載數據
     data = yf.download(tickers, period="6mo", group_by='ticker', auto_adjust=True, progress=False)
     
     for i, sym in enumerate(tickers):
@@ -91,11 +84,10 @@ if st.button("🚀 開始全市場掃描 (排序由強至弱)", use_container_wi
         st.success(f"✅ 找到 {len(results)} 檔符合條件標的")
         for item in results:
             with st.container(border=True):
-                c1, c2, c3 = st.columns([2, 2, 1])
+                c1, c2, c3 = st.columns([2, 1, 1])
                 c1.subheader(f"{item['代碼']} - {item['名稱']}")
                 c2.metric("價格", f"${item['現價']}", f"{item['漲幅']}%")
-                # 修復後的 TradingView 連結
-                c3.markdown(f'<br><a href="https://www.tradingview.com{item["代碼"]}" target="_blank" class="tv-link">📊 看線圖</a>', unsafe_allow_html=True)
+                c3.markdown(f'<br><a href="https://www.tradingview.com{item["代碼"]}" target="_blank" class="tv-link">📊 查看即時線圖</a>', unsafe_allow_html=True)
                 st.write(f"📈 K值: `{item['K值']}` | 🛡️ 支撐: `${item['支撐']}`")
     else:
-        st.warning("❌ 目前範圍內無符合標的。請調低漲幅門檻或增加掃描檔數。")
+        st.warning("目前無符合標的。")
