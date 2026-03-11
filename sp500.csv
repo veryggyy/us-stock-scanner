@@ -502,3 +502,21 @@ YUM,Yum! Brands,Consumer Discretionary,Restaurants,"Louisville, Kentucky",1997-1
 ZBRA,Zebra Technologies,Information Technology,Electronic Equipment & Instruments,"Lincolnshire, Illinois",2019-12-23,877212,1969
 ZBH,Zimmer Biomet,Health Care,Health Care Equipment,"Warsaw, Indiana",2001-08-07,1136869,1927
 ZTS,Zoetis,Health Care,Pharmaceuticals,"Parsippany, New Jersey",2013-06-21,1555280,1952
+
+Symbol,Security,GICS Sector,GICS Sub-Industry,Headquarters Location,Date added,CIK,Founded
+SPY,SPDR S&P 500 ETF Trust,ETF - 大盤指數,S&P 500,"New York, New York",1993-01-22,N/A,1993
+QQQ,Invesco QQQ Trust,ETF - 大盤指數,Nasdaq 100,"Atlanta, Georgia",1999-03-10,N/A,1999
+DIA,SPDR Dow Jones Industrial Average ETF,ETF - 大盤指數,Dow 30,"New York, New York",1998-01-14,N/A,1998
+IWM,iShares Russell 2000 ETF,ETF - 大盤指數,Russell 2000,"New York, New York",2000-05-22,N/A,2000
+XLK,Technology Select Sector SPDR Fund,ETF - 產業型,Technology,"New York, New York",1998-12-16,N/A,1998
+SMH,VanEck Semiconductor ETF,ETF - 產業型,Semiconductors,"New York, New York",2011-12-20,N/A,2011
+XLE,Energy Select Sector SPDR Fund,ETF - 產業型,Energy,"New York, New York",1998-12-16,N/A,1998
+XLF,Financial Select Sector SPDR Fund,ETF - 產業型,Financials,"New York, New York",1998-12-16,N/A,1998
+TQQQ,ProShares UltraPro QQQ,ETF - 槓桿型,Nasdaq 100 3X Bull,"Bethesda, Maryland",2010-02-09,N/A,2010
+SOXL,Direxion Daily Semiconductor Bull 3X,ETF - 槓桿型,Semiconductors 3X Bull,"New York, New York",2010-03-11,N/A,2010
+SQQQ,ProShares UltraPro Short QQQ,ETF - 槓桿型,Nasdaq 100 3X Bear,"Bethesda, Maryland",2010-02-09,N/A,2010
+SCHD,Schwab US Dividend Equity ETF,ETF - 股息價值,High Dividend Yield,"Westlake, Texas",2011-10-20,N/A,2011
+VIG,Vanguard Dividend Appreciation ETF,ETF - 股息價值,Dividend Growth,"Malvern, Pennsylvania",2006-04-21,N/A,2006
+ARKK,ARK Innovation ETF,ETF - 主動管理,Disruptive Innovation,"St. Petersburg, Florida",2014-10-31,N/A,2014
+BITO,ProShares Bitcoin Strategy ETF,ETF - 加密貨幣,Bitcoin Futures,"Bethesda, Maryland",2021-10-19,N/A,2021
+
