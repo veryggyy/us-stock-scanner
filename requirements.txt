@@ -4,6 +4,6 @@ pandas
 pandas-ta
 urllib3
 lxml
-
+html5lib
 
 
